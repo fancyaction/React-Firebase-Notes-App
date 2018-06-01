@@ -19,5 +19,5 @@ export default class Note extends Component {
 }
 
 Note.propTypes = {
-    noteContent: PropTypes.string;
+  noteContent: PropTypes.string
 };
