@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import Note from './Note/Note';
+import NoteForm from './NoteForm/NoteForm';
 import './App.css';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
+    this.addNote = this.addNote.bind(this);
 
     this.state = {
       // setup React state of component
@@ -13,6 +15,16 @@ export default class App extends Component {
         { id: 2, noteContent: 'Note 2 here!' }
       ]
     };
+  }
+
+  // add new note to array
+  addNote(note) {
+    const prevNotes = this.state.notes;
+    prevNotes.push({ id: prevNotes.length + 1, noteContent: note });
+
+    this.setState({
+      notes: prevNotes
+    });
   }
 
   render() {
@@ -32,7 +44,9 @@ export default class App extends Component {
             );
           })}
         </div>
-        <div className="notesFooter">Footer will go here</div>
+        <div className="notesFooter">
+          <NoteForm addNote={this.addNote} />
+        </div>
       </div>
     );
   }
