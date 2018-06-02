@@ -1,30 +1,63 @@
 import React, { Component } from 'react';
 import Note from './Note/Note';
 import NoteForm from './NoteForm/NoteForm';
+import { DB_CONFIG } from './Config/config';
+import firebase from 'firebase/app';
+import 'firebase/database';
 import './App.css';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.addNote = this.addNote.bind(this);
+    this.app = firebase.initializeApp(DB_CONFIG);
+    this.database = this.app
+      .database()
+      .ref()
+      .child('notes');
 
     this.state = {
       // setup React state of component
-      notes: [
-        { id: 1, noteContent: 'Note 1 here!' },
-        { id: 2, noteContent: 'Note 2 here!' }
-      ]
+      notes: []
     };
   }
 
-  // add new note to array
-  addNote(note) {
+  componentWillMount() {
     const prevNotes = this.state.notes;
-    prevNotes.push({ id: prevNotes.length + 1, noteContent: note });
 
-    this.setState({
-      notes: prevNotes
+    //Data snapshot
+    this.database.on('child_added', snap => {
+      prevNotes.push({
+        id: snap.key,
+        noteContent: snap.val().noteContent
+      });
+
+      this.setState({
+        notes: prevNotes
+      });
     });
+
+    this.database.on('child_removed', snap => {
+      for (let i = 0; i < prevNotes.length; i++) {
+        if (prevNotes[i].id === snap.key) {
+          prevNotes.splice(i, 1);
+        }
+      }
+
+      this.setState({
+        notes: prevNotes
+      });
+    });
+  }
+
+  // make new note and push data containing noteContent to Firebase
+  // id is made by Firebase automatically
+  addNote(note) {
+    this.database.push().set({ noteContent: note });
+  }
+
+  removeNote(noteId) {
+    this.database.child(noteId).remove();
   }
 
   render() {
@@ -40,6 +73,7 @@ export default class App extends Component {
                 noteContent={note.noteContent}
                 noteId={note.id}
                 key={note.id}
+                removeNote={this.removeNote}
               />
             );
           })}
