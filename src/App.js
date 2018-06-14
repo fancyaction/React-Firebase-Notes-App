@@ -10,6 +10,7 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.addNote = this.addNote.bind(this);
+    this.removeNote = this.removeNote.bind(this);
     this.app = firebase.initializeApp(DB_CONFIG);
     this.database = this.app
       .database()
